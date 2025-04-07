@@ -10,7 +10,7 @@ export interface Rent {
   latitude?: number,
   longitude?: number,
   created_at?: string;
-  url: string[];
+  images: string[];
   rooms: {
     bed?: number;
     bath?: number;
