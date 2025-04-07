@@ -5,7 +5,10 @@ const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_KE
 const bucket = process.env.SUPABASE_BUCKET!;
 
 export async function GET() {
-  const { data, error } = await supabase.from('properties').select('*');
+  const { data, error } = await supabase
+    .from('properties')
+    .select('id, title, description, price, location, latitude, longitude, property_type, status, rooms, images, area, tag');
+
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
 }
