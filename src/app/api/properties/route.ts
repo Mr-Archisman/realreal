@@ -20,17 +20,16 @@ export async function POST(req: Request) {
   try {
     const form = await req.formData();
 
-    const title = form.get('title')?.toString();
-    const description = form.get('description')?.toString();
-    const price = parseFloat(form.get('price') as string);
-    const location = form.get('location')?.toString();
-    const property_type = form.get('property_type')?.toString();
-
-    const status = form.get('status')?.toString() || 'available';
-    const latitude = parseFloat(form.get('latitude') as string);
-    const longitude = parseFloat(form.get('longitude') as string);
-    const area = parseInt(form.get('area') as string);
-    const tag = form.get('tag')?.toString();
+    const title = form.get('title')?.toString().trim();
+    const description = form.get('description')?.toString().trim();
+    const price = parseFloat(form.get('price')?.toString().trim() || '');
+    const location = form.get('location')?.toString().trim();
+    const property_type = form.get('property_type')?.toString().trim().toLowerCase();
+    const status = form.get('status')?.toString().trim().toLowerCase() || 'available';
+    const latitude = parseFloat(form.get('latitude')?.toString().trim() || '');
+    const longitude = parseFloat(form.get('longitude')?.toString().trim() || '');
+    const area = parseInt(form.get('area')?.toString().trim() || '');
+    const tag = form.get('tag')?.toString().trim().toLowerCase();
     const rooms = form.get('rooms') ? JSON.parse(form.get('rooms') as string) : null;
     const imageFiles = form.getAll('images') as File[];
 
@@ -48,14 +47,14 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!tag || !['buy', 'sell', 'rent'].includes(tag.toLowerCase())) {
+    if (!tag || !['buy', 'sell', 'rent'].includes(tag)) {
       return NextResponse.json(
         { error: 'Invalid tag type' },
         { status: 400 }
       );
-    }    
+    }
 
-    if (!['available','notavailable'].includes(status)) {
+    if (!['available', 'notavailable'].includes(status)) {
       return NextResponse.json(
         { error: 'Invalid status' },
         { status: 400 }
@@ -95,7 +94,7 @@ export async function POST(req: Request) {
       const { publicUrl } = supabase.storage.from(bucket).getPublicUrl(fileName).data;
       imageUrls.push(publicUrl);
     }
-    
+
     // Insert into database
     const { data: property, error: insertError } = await supabase
       .from('properties')
