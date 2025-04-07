@@ -1,13 +1,30 @@
 "use client"
 import { MENU_ITEMS_HEADLINE } from "@/common/constant/menu";
 
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, message as antMessage  } from "antd";
 
 interface HeadlineProps {}
 
 export default function Headline({}: HeadlineProps) {
-  const onFinish = (values: { name: string; contact: string }) => {
-    console.log("Form Submitted:", values);
+  const onFinish = async (values: { name: string; email: string; message: string }) => {
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || "Something went wrong");
+
+      antMessage.success("Message sent successfully!");
+    } catch (err: any) {
+      console.error("Error submitting contact form:", err);
+      antMessage.error(err.message || "Failed to send message.");
+    }
   };
   return (
     <section
@@ -30,40 +47,53 @@ export default function Headline({}: HeadlineProps) {
         </Button>
         <div className="hidden lg:block absolute w-full -bottom-10 px-14 2xl:px-28">
       <div className="flex justify-between bg-white rounded-xl px-12 py-6">
-        <Form
-          onFinish={onFinish}
-          layout="vertical"
-          className="w-full flex justify-around gap-x-6"
+      <Form
+        onFinish={onFinish}
+        layout="vertical"
+        className="w-full flex justify-around gap-x-6"
+      >
+        <Form.Item
+          label="Name"
+          name="name"
+          rules={[{ required: true, message: "Please enter your name" }]}
+          className="w-full"
         >
-          <Form.Item
-            label="Name"
-            name="name"
-            rules={[{ required: true, message: "Please enter your name" }]}
-            className="w-full"
-          >
-            <Input className="rounded-xl py-3 px-4" placeholder="Enter your name" />
-          </Form.Item>
+          <Input className="rounded-xl py-3 px-4" placeholder="Enter your name" />
+        </Form.Item>
 
-          <Form.Item
-            label="Contact"
-            name="contact"
-            rules={[{ required: true, message: "Please enter your contact" }]}
-            className="w-full"
-          >
-            <Input className="rounded-xl py-3 px-4" placeholder="Enter your contact" />
-          </Form.Item>
+        <Form.Item
+          label="Email"
+          name="email"
+          rules={[{ required: true, message: "Please enter your email", type: "email" }]}
+          className="w-full"
+        >
+          <Input className="rounded-xl py-3 px-4" placeholder="Enter your email" />
+        </Form.Item>
 
-          <Form.Item className="w-auto py-8">
-            <Button
-              type="default"
-              htmlType="submit"
-              aria-label="Contact Us"
-              className="h-auto px-6 py-2 border border-black rounded-lg font-bold text-black hover:bg-white hover:border-blue-500"
-            >
-              Contact Us
-            </Button>
-          </Form.Item>
-        </Form>
+        <Form.Item
+          label="Message"
+          name="message"
+          rules={[{ required: true, message: "Please enter your message" }]}
+          className="w-full"
+        >
+          <Input.TextArea
+            className="rounded-xl py-3 px-4"
+            rows={1}
+            placeholder="Write your message..."
+          />
+        </Form.Item>
+
+        <Form.Item className="w-auto py-8">
+          <Button
+            type="default"
+            htmlType="submit"
+            aria-label="Contact Us"
+            className="h-auto px-6 py-2 border border-black rounded-lg font-bold text-black hover:bg-white hover:border-blue-500"
+          >
+            Contact Us
+          </Button>
+        </Form.Item>
+      </Form>
       </div>
     </div>
       </div>

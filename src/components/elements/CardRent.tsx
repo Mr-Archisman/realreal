@@ -1,16 +1,26 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Card } from "antd";
-import { MdOutlineBathtub, MdOutlineLocationOn, MdOutlineDirectionsCar } from "react-icons/md";
+import {
+  MdOutlineBathtub,
+  MdOutlineLocationOn,
+  MdOutlineDirectionsCar,
+} from "react-icons/md";
 import { LuBedDouble } from "react-icons/lu";
 import { formatCurrency } from "@/utils/formatter";
-import { Rent } from '@/common/types/response';
+import { Rent } from "@/common/types/response";
 
 interface CardRentProps {
   data: Rent;
 }
 
 export default function CardRent({ data }: CardRentProps) {
+  // Use first image or fallback
+  const imageUrl =
+    data.url && data.url.length > 0 && data.url[0].startsWith("http")
+      ? data.url[0]
+      : "/images/image-6.jpg"; // Make sure this image exists in /public
+
   return (
     <Link href={`/properties/${data.id}`} passHref>
       <Card
@@ -19,7 +29,7 @@ export default function CardRent({ data }: CardRentProps) {
           <div className="relative w-full">
             <Image
               alt={data.title}
-              src={data.images[0]}
+              src={imageUrl}
               priority
               width="0"
               height="0"
@@ -43,13 +53,13 @@ export default function CardRent({ data }: CardRentProps) {
           </p>
           <div className="flex justify-between mt-2 text-sm">
             <span className="flex items-center gap-x-2">
-              <LuBedDouble /> {data.rooms.bed} Bed
+              <LuBedDouble /> {data.rooms.bed ?? "-"} Bed
             </span>
             <span className="flex items-center gap-x-2">
-              <MdOutlineBathtub /> {data.rooms.bath} Bath
+              <MdOutlineBathtub /> {data.rooms.bath ?? "-"} Bath
             </span>
             <span className="flex items-center gap-x-2">
-              <MdOutlineDirectionsCar /> {data.rooms.parking} Parking
+              <MdOutlineDirectionsCar /> {data.rooms.parking ?? "-"} Parking
             </span>
           </div>
         </div>

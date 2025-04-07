@@ -10,6 +10,12 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
     .eq('id', params.id)
     .single();
 
-  if (error) return NextResponse.json({ error: 'Property not found' }, { status: 404 });
-  return NextResponse.json(data);
+  if (error || !data) {
+    return NextResponse.json({ error: 'Property not found' }, { status: 404 });
+  }
+
+  // ✅ Fix the `url` field
+  const fixedUrl = typeof data.url === "string" ? JSON.parse(data.url) : data.url;
+
+  return NextResponse.json({ ...data, url: fixedUrl });
 }

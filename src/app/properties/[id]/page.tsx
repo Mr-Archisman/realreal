@@ -9,19 +9,21 @@ import {
 import { LuBedDouble } from "react-icons/lu";
 import { GiResize } from "react-icons/gi";
 import { formatCurrency } from "@/utils/formatter";
-import { MENU_RENT } from "@/common/mocks/rent";
+import { Rent } from "@/common/types/response";
 
 interface PropertyPageProps {
   params: { id: string };
 }
 
-export default function PropertyPage({ params }: PropertyPageProps) {
-  const property = MENU_RENT.find((p) => p.id.toString() === params.id);
+export default async function PropertyPage({ params }: PropertyPageProps) {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/properties/${params.id}`, {
+    next: { revalidate: 10 }, // optional ISR caching
+  });
 
-  if (!property) {
-    return notFound();
-  }
-
+  if (!res.ok) return notFound();
+  console.log(res)
+  const property: Rent = await res.json();
+  console.log(property)
   return (
     <div className="min-h-screen px-4 md:px-16 2xl:px-48 py-24 bg-gray-50">
       <Card className="p-6 rounded-lg shadow-md bg-white">
@@ -31,34 +33,29 @@ export default function PropertyPage({ params }: PropertyPageProps) {
           <p className="text-lg text-gray-500 flex items-center gap-x-2 mt-2">
             <MdOutlineLocationOn className="text-xl" /> {property.location}
           </p>
-          <div className='mt-4'>
-              <Tag color={getTagColor(property.tag)} className="capitalize">
-                {property.tag}
-              </Tag>
-            </div>
+          <div className="mt-4">
+            <Tag color={getTagColor(property.tag)} className="capitalize">
+              {property.tag}
+            </Tag>
+          </div>
         </div>
 
         {/* Image Carousel */}
-        <Carousel
-          autoplay
-          autoplaySpeed={1000}
-          arrows
-          dots
-          className="rounded-lg overflow-hidden"
-        >
-          {property.images.map((img, index) => (
-            <div key={index}>
-              <Image
-                src={img}
-                alt={`${property.title} image ${index + 1}`}
-                priority
-                width={0}
-                height={0}
-                sizes="100vw"
-                className="w-full h-[450px] object-cover rounded-lg"
-              />
-            </div>
-          ))}
+        <Carousel autoplay autoplaySpeed={3000} dots className="rounded-lg overflow-hidden">
+        {Array.isArray(property.url) &&
+  property.url.map((img, index) => (
+    <div key={index}>
+      <Image
+        src={img}
+        alt={`${property.title} image ${index + 1}`}
+        width={0}
+        height={0}
+        sizes="100vw"
+        className="w-full h-[450px] object-cover rounded-lg"
+      />
+    </div>
+  ))}
+
         </Carousel>
 
         {/* Main Info Grid */}
@@ -66,15 +63,15 @@ export default function PropertyPage({ params }: PropertyPageProps) {
           <div className="space-y-3">
             <div className="flex items-center gap-x-2">
               <LuBedDouble className="text-xl text-blue-500" />
-              <span>{property.rooms.bed} Bedrooms</span>
+              <span>{property.rooms.bed ?? "-"} Bedrooms</span>
             </div>
             <div className="flex items-center gap-x-2">
               <MdOutlineBathtub className="text-xl text-blue-500" />
-              <span>{property.rooms.bath} Bathrooms</span>
+              <span>{property.rooms.bath ?? "-"} Bathrooms</span>
             </div>
             <div className="flex items-center gap-x-2">
               <MdOutlineDirectionsCar className="text-xl text-blue-500" />
-              <span>{property.rooms.parking} Parking Spots</span>
+              <span>{property.rooms.parking ?? "-"} Parking Spots</span>
             </div>
             {property.area && (
               <div className="flex items-center gap-x-2">
@@ -84,7 +81,6 @@ export default function PropertyPage({ params }: PropertyPageProps) {
             )}
           </div>
 
-          {/* Tags & Meta Info */}
           <div className="space-y-3">
             <div>
               <span className="font-semibold text-gray-600">Type:</span>{" "}
@@ -102,11 +98,6 @@ export default function PropertyPage({ params }: PropertyPageProps) {
               <span className="font-semibold text-gray-600">Longitude:</span>{" "}
               {property.longitude ?? "N/A"}
             </div>
-            {/* <div>
-              <Tag color={getTagColor(property.tag)} className="capitalize">
-                {property.tag}
-              </Tag>
-            </div> */}
           </div>
         </div>
 
@@ -132,7 +123,6 @@ export default function PropertyPage({ params }: PropertyPageProps) {
   );
 }
 
-// Helper: Tag color logic
 function getTagColor(tag: "buy" | "sell" | "rent") {
   switch (tag) {
     case "buy":
