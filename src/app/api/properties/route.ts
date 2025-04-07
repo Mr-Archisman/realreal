@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { error } from 'console';
 
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_KEY!);
 const bucket = process.env.SUPABASE_BUCKET!;
+const path = process.env.SUPABASE_BUCKET_PATH || '';
 
 export async function GET() {
   const { data, error } = await supabase
@@ -13,50 +15,114 @@ export async function GET() {
   return NextResponse.json(data);
 }
 
+
 export async function POST(req: Request) {
-  const form = await req.formData();
+  try {
+    const form = await req.formData();
 
-  const title = form.get('title');
-  const description = form.get('description');
-  const location = form.get('location');
-  const latitude = form.get('latitude');
-  const longitude = form.get('longitude');
-  const price = form.get('price');
-  const status = form.get('status');
-  const property_type = form.get('property_type');
-  const rooms = JSON.parse(form.get('rooms') as string);
-  const area = form.get('area');
-  const tag = form.get('tag');
-  const url = form.getAll('images') as File[];
+    const title = form.get('title')?.toString();
+    const description = form.get('description')?.toString();
+    const price = parseFloat(form.get('price') as string);
+    const location = form.get('location')?.toString();
+    const property_type = form.get('property_type')?.toString();
 
-  const path = process.env.SUPABASE_BUCKET_PATH || '';
-  const urls: string[] = [];
+    const status = form.get('status')?.toString() || 'available';
+    const latitude = parseFloat(form.get('latitude') as string);
+    const longitude = parseFloat(form.get('longitude') as string);
+    const area = parseInt(form.get('area') as string);
+    const tag = form.get('tag')?.toString();
+    const rooms = form.get('rooms') ? JSON.parse(form.get('rooms') as string) : null;
+    const imageFiles = form.getAll('images') as File[];
 
-  for (const image of url) {
-    const fileName = `${path}/${crypto.randomUUID()}.png`;
-    const { data, error } = await supabase.storage.from(bucket).upload(fileName, image);
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!title || !description || isNaN(price) || !location || !property_type) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
 
-    const url = supabase.storage.from(bucket).getPublicUrl(data.path).data.publicUrl;
-    urls.push(url);
+    if (!['house', 'apartment', 'commercial', 'land'].includes(property_type)) {
+      return NextResponse.json(
+        { error: 'Invalid property type' },
+        { status: 400 }
+      );
+    }
+
+    if (!tag || !['buy', 'sell', 'rent'].includes(tag.toLowerCase())) {
+      return NextResponse.json(
+        { error: 'Invalid tag type' },
+        { status: 400 }
+      );
+    }    
+
+    if (!['available','notavailable'].includes(status)) {
+      return NextResponse.json(
+        { error: 'Invalid status' },
+        { status: 400 }
+      );
+    }
+
+    if (area && area <= 0) {
+      return NextResponse.json(
+        { error: 'Area must be a positive number' },
+        { status: 400 }
+      );
+    }
+
+    const imageUrls: string[] = [];
+
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
+    for (const image of imageFiles) {
+      if (!allowedMimeTypes.includes(image.type)) {
+        return NextResponse.json(
+          { error: `Invalid file type: ${image.name}. Only JPG, PNG, and WEBP are allowed.` },
+          { status: 400 }
+        );
+      }
+
+      const fileExt = image.name.split('.').pop();
+      const fileName = `${path}/${crypto.randomUUID()}.${fileExt}`;
+
+      const { data, error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(fileName, image);
+
+      if (uploadError) {
+        return NextResponse.json({ error: uploadError.message }, { status: 500 });
+      }
+
+      const { publicUrl } = supabase.storage.from(bucket).getPublicUrl(fileName).data;
+      imageUrls.push(publicUrl);
+    }
+    
+    // Insert into database
+    const { data: property, error: insertError } = await supabase
+      .from('properties')
+      .insert({
+        title,
+        description,
+        price,
+        location,
+        latitude: isNaN(latitude) ? null : latitude,
+        longitude: isNaN(longitude) ? null : longitude,
+        property_type,
+        status,
+        rooms,
+        area: isNaN(area) ? null : area,
+        tag,
+        images: imageUrls
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      return NextResponse.json({ error: insertError.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ message: 'Property created successfully', property });
+  } catch (err: any) {
+    console.error('Unexpected error:', err);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
-
-  const { data: property, error: insertError } = await supabase.from('properties').insert({
-    title,
-    description,
-    location,
-    latitude,
-    longitude,
-    price,
-    status,
-    property_type,
-    rooms,
-    area,
-    tag,
-    url: urls
-  }).select().single();
-
-  if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 });
-
-  return NextResponse.json({ message: 'Property created successfully', property });
 }
