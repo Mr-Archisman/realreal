@@ -1,5 +1,6 @@
 export interface Rent {
-2  price: number;
+  id:number;
+  price: number;
   title: string;
   location: string;
   property_type?:string;
@@ -9,7 +10,7 @@ export interface Rent {
   latitude?: number,
   longitude?: number,
   created_at?: string;
-  url: string[]; // updated from `image: string`
+  url: string[];
   rooms: {
     bed?: number;
     bath?: number;
