@@ -42,8 +42,8 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
 
         {/* Image Carousel */}
         <Carousel autoplay autoplaySpeed={3000} dots className="rounded-lg overflow-hidden">
-        {Array.isArray(property.url) &&
-  property.url.map((img, index) => (
+        {Array.isArray(property.images) &&
+  property.images.map((img, index) => (
     <div key={index}>
       <Image
         src={img}
