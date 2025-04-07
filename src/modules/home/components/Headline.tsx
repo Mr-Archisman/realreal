@@ -6,7 +6,7 @@ import { Button, Form, Input, message as antMessage  } from "antd";
 interface HeadlineProps {}
 
 export default function Headline({}: HeadlineProps) {
-  const onFinish = async (values: { name: string; email: string; message: string }) => {
+  const onFinish = async (values: { name: string; phone: string; message: string ; email: string}) => {
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -62,12 +62,18 @@ export default function Headline({}: HeadlineProps) {
         </Form.Item>
 
         <Form.Item
-          label="Email"
-          name="email"
-          rules={[{ required: true, message: "Please enter your email", type: "email" }]}
+          label="Phone"
+          name="phone"
+          rules={[
+            { required: true, message: "Please enter your phone number" },
+            {
+              pattern: /^\+?[0-9]{10,15}$/,
+              message: "Please enter a valid phone number",
+            },
+          ]}
           className="w-full"
         >
-          <Input className="rounded-xl py-3 px-4" placeholder="Enter your email" />
+          <Input className="rounded-xl py-3 px-4" placeholder="Enter your phone" />
         </Form.Item>
 
         <Form.Item
@@ -81,6 +87,20 @@ export default function Headline({}: HeadlineProps) {
             rows={1}
             placeholder="Write your message..."
           />
+        </Form.Item>
+
+        <Form.Item
+          label="Email"
+          name="email"
+          rules={[
+            {
+              type: "email",
+              message: "Please enter a valid email address",
+            },
+          ]}
+          className="w-full"
+        >
+          <Input className="rounded-xl py-3 px-4" placeholder="Enter your email (optional)" />
         </Form.Item>
 
         <Form.Item className="w-auto py-8">
