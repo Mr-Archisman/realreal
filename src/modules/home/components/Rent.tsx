@@ -16,14 +16,26 @@ export default function Rent({}: RentProps) {
   useEffect(() => {
     const fetchProperties = async () => {
       setLoading(true);
+      setError(null);
       try {
-        const res = await fetch("/api/properties");
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+        const url = baseUrl
+          ? `${baseUrl}/api/properties`
+          : "/api/properties"; // fallback for client-side
+    
+        console.log("Fetching from:", url);
+    
+        const res = await fetch(url, {
+          next: { revalidate: 10 }, // this is ignored on client, but fine
+        });
+    
         if (!res.ok) throw new Error("Failed to fetch properties");
         const data = await res.json();
-        setProperties(data.slice(0, 6)); // 👈 Only show the first 6
+    
+        setProperties(data);
       } catch (error: any) {
         console.error("Error fetching properties:", error);
-        setError("Failed to load popular properties.");
+        setError("Something went wrong while loading properties.");
       } finally {
         setLoading(false);
       }
