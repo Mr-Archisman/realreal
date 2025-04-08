@@ -6,16 +6,17 @@ export const MENU_ITEMS: MenuItems[] = [
     href: "#home",
   },
   {
-    title: "RENT",
-    href: "#rent",
-  },
-  {
-    title: "SELL",
-    href: "#sell",
-  },
-  {
     title: "ABOUT",
     href: "#about",
+  },
+  {
+    title: "PROPERTIES",
+    href: "#rent",
+  },
+ 
+  {
+    title: "CONTACT",
+    href: "#contact-us",
   },
 ];
 
@@ -54,7 +55,7 @@ export const MENU_QUICK: MenuFooter[] = [
   },
   {
     title: "Contact",
-    href: "#contact",
+    href: "#contact-us",
   },
 ];
 
@@ -79,15 +80,16 @@ export const MENU_ABOUT_US: MenuFooter[] = [
 
 export const MENU_CONTACT_INFO: MenuFooter[] = [
   {
-    title: "123 Main Street, Apt 4B Los Angeles, CA 90001, USA ",
+    title: "Desq Worx, Club Patio , Block E , South City - I ,Gurugram - 122001",
     href: "#",
   },
   {
-    title: "+088 (123) 456-78-91",
+    title: "9953659536 , 7827601216",
     href: "#",
   },
+
   {
-    title: "company@gmail.com",
+    title: "tulipsprimeprop@gmail.com",
     href: "#",
   },
 ];

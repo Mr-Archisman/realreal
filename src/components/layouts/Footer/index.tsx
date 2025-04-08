@@ -17,7 +17,7 @@ export default function Footer() {
         <Tagline />
         <div className="ml-0 xl:ml-24 2xl:ml-36 w-full flex flex-wrap justify-between items-start gap-y-8">
           <QuickMenu data={MENU_QUICK} />
-          <AboutUs data={MENU_ABOUT_US} />
+          {/* <AboutUs data={MENU_ABOUT_US} /> */}
           <ContactInfo data={MENU_CONTACT_INFO} />
         </div>
       </div>

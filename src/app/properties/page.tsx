@@ -14,7 +14,9 @@ export default function Properties() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch("/api/properties");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/properties`, {
+          next: { revalidate: 10 }, // optional ISR caching
+        });
         if (!res.ok) throw new Error("Failed to fetch properties");
         const data = await res.json();
 

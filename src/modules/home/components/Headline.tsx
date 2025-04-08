@@ -2,7 +2,7 @@
 import { MENU_ITEMS_HEADLINE } from "@/common/constant/menu";
 
 import { Button, Form, Input, message as antMessage  } from "antd";
-
+import { useRouter } from "next/navigation";
 interface HeadlineProps {}
 
 export default function Headline({}: HeadlineProps) {
@@ -26,6 +26,12 @@ export default function Headline({}: HeadlineProps) {
       antMessage.error(err.message || "Failed to send message.");
     }
   };
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push("/#contact-us");
+  };
+
   return (
     <section
       id="home"
@@ -40,6 +46,7 @@ export default function Headline({}: HeadlineProps) {
         </p>
         <Button
         type='default'
+        onClick={handleClick}
           aria-label="Get-Started"
           className="h-auto px-6 py-2 border border-black rounded-lg font-bold mt-10"
         >
@@ -89,7 +96,7 @@ export default function Headline({}: HeadlineProps) {
           />
         </Form.Item>
 
-        <Form.Item
+        {/* <Form.Item
           label="Email"
           name="email"
           rules={[
@@ -101,7 +108,7 @@ export default function Headline({}: HeadlineProps) {
           className="w-full"
         >
           <Input className="rounded-xl py-3 px-4" placeholder="Enter your email (optional)" />
-        </Form.Item>
+        </Form.Item> */}
 
         <Form.Item className="w-auto py-8">
           <Button

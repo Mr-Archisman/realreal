@@ -6,7 +6,7 @@ interface ContactProps {}
 export default function Contact({}: ContactProps) {
   const logos = ["/bestech.png", "/aipl.png", "/birla.png", "/dlf.png" ,"/centralpark.png","/godrej.png", "/emaar.png","/m3m.png"];
   return (
-    <section id="contact" className="w-full h-auto px-4 md:px-20 py-20">
+    <section id="about" className="w-full h-auto px-4 md:px-20 py-20">
       <div className="w-full hidden lg:flex justify-between mb-16">
       {logos.map((logo, index) => (
            <Image

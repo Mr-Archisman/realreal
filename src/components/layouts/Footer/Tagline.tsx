@@ -4,10 +4,10 @@ import Link from "next/link";
 
 export default function Tagline() {
   return (
-    <div className="flex flex-col gap-y-6 lg:gap-y-0 lg:justify-between">
+    <div className="flex flex-col gap-y-6 lg:gap-y-0 lg:justify-between w-[40%]">
       <Link href="#home" aria-label="home">
         <Image
-          src="/logo-2.png"
+          src="/4.png"
           alt="logo"
           width="0"
           height="0"
@@ -16,10 +16,11 @@ export default function Tagline() {
         />
       </Link>
       <h1 className="text-base xl:text-lg">
-        Investing In Your Future One <br />
-        Home At A Time
+      We Help You Fulfill
+       <br />
+       Your Dreams
       </h1>
-      <div className="border rounded-xl overflow-hidden flex items-center justify-between p-1">
+      {/* <div className="border rounded-xl overflow-hidden flex items-center justify-between p-1">
         <Input
           placeholder="Enter your email"
           variant="borderless"
@@ -32,7 +33,7 @@ export default function Tagline() {
         >
           Subscribe
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 }
