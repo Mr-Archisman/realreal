@@ -3,10 +3,13 @@ import React, { lazy } from "react";
 import VideoPlayer from "./VideoPlayer";
 import Contact from "./Contact";
 import About from "./About";
+import ContactUs from './ContactUs';
 
 const Customers = lazy(() => import("./Customers"));
 const Headline = lazy(() => import("./Headline"));
 const Rent = lazy(() => import("./Rent"));
+
+
 
 interface HomeProps {}
 
@@ -19,6 +22,7 @@ export default function Home({}: HomeProps) {
       <VideoPlayer />
       <Rent />
       <Customers />
+      <ContactUs />
     </>
   );
 }
