@@ -17,8 +17,8 @@ interface CardRentProps {
 export default function CardRent({ data }: CardRentProps) {
   // Use first image or fallback
   const imageUrl =
-    data.url && data.url.length > 0 && data.url[0].startsWith("http")
-      ? data.url[0]
+    data.images && data.images.length > 0 && data.images[0].startsWith("http")
+      ? data.images[0]
       : "/images/image-6.jpg"; // Make sure this image exists in /public
 
   return (
