@@ -14,14 +14,20 @@ export default function Properties() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/properties`, {
-          next: { revalidate: 10 }, // optional ISR caching
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+        const url = baseUrl
+          ? `${baseUrl}/api/properties`
+          : "/api/properties"; // fallback for client-side
+    
+        console.log("Fetching from:", url);
+    
+        const res = await fetch(url, {
+          next: { revalidate: 10 }, // this is ignored on client, but fine
         });
+    
         if (!res.ok) throw new Error("Failed to fetch properties");
         const data = await res.json();
-
-        // Assuming API gives 'url' as a stringified array, map it correctly
-        
+    
         setProperties(data);
       } catch (error: any) {
         console.error("Error fetching properties:", error);

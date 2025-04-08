@@ -1,7 +1,6 @@
-"use client"
-
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { Button, Card, Carousel, Tag } from "antd";
 import {
   MdOutlineBathtub,
@@ -12,25 +11,25 @@ import { LuBedDouble } from "react-icons/lu";
 import { GiResize } from "react-icons/gi";
 import { formatCurrency } from "@/utils/formatter";
 import { Rent } from "@/common/types/response";
-import { useRouter } from "next/navigation";
+
 interface PropertyPageProps {
   params: { id: string };
 }
 
 export default async function PropertyPage({ params }: PropertyPageProps) {
-  const router = useRouter();
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL;
 
-  const handleClick = () => {
-    router.push("/#contact-us");
-  };
-  const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/properties/${params.id}`, {
-    next: { revalidate: 10 }, // optional ISR caching
+  // Fallback to a relative URL if nothing is defined
+  const siteUrl = baseUrl?.startsWith("http") ? baseUrl : `https://${baseUrl}`;
+
+  const res = await fetch(`${siteUrl}/api/properties/${params.id}`, {
+    next: { revalidate: 10 }, // optional caching
   });
 
   if (!res.ok) return notFound();
-  console.log(res)
+
   const property: Rent = await res.json();
-  console.log(property)
+
   return (
     <div className="min-h-screen px-4 md:px-16 2xl:px-48 py-24 bg-gray-50">
       <Card className="p-6 rounded-lg shadow-md bg-white">
@@ -49,22 +48,21 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
 
         {/* Image Carousel */}
         <Carousel autoplay autoplaySpeed={3000} dots className="rounded-lg overflow-hidden">
-  {Array.isArray(property.images) &&
-    property.images.map((img, index) => (
-      <div key={index}>
-        <Image
-          src={img}
-          alt={`${property.title} image ${index + 1}`}
-          width={0}
-          height={0}
-          sizes="100vw"
-          priority={index === 0} // Prioritize only the first image
-          className="w-full h-[450px] object-cover rounded-lg"
-        />
-      </div>
-    ))}
-</Carousel>
-
+          {Array.isArray(property.images) &&
+            property.images.map((img, index) => (
+              <div key={index}>
+                <Image
+                  src={img}
+                  alt={`${property.title} image ${index + 1}`}
+                  width={0}
+                  height={0}
+                  sizes="100vw"
+                  priority={index === 0}
+                  className="w-full h-[450px] object-cover rounded-lg"
+                />
+              </div>
+            ))}
+        </Carousel>
 
         {/* Main Info Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 text-lg">
@@ -122,9 +120,11 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
           <h2 className="text-3xl font-bold text-green-600">
             {formatCurrency(property.price)}
           </h2>
-          <Button type="default" size="large" onClick={handleClick}>
-            Contact Agent
-          </Button>
+          <Link href="/#contact-us">
+            <Button type="default" size="large">
+              Contact Agent
+            </Button>
+          </Link>
         </div>
       </Card>
     </div>
